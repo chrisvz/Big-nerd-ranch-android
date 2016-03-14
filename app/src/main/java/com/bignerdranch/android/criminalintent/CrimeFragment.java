@@ -39,6 +39,11 @@ public class CrimeFragment extends Fragment {
         return fragment;
     }
 
+    public void onPause() {
+        super.onPause();
+        CrimeLab.get(getActivity()).updateCrime(mCrime);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
