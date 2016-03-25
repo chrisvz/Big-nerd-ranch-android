@@ -9,10 +9,20 @@ public class Crime {
     private String mTitle;
     private Date mDate;
     private boolean mSolved;
+    private String suspect;
 
     public Crime(UUID id) {
         mId = id;
         mDate = new Date();
+    }
+
+
+    public String getSuspect() {
+        return suspect;
+    }
+
+    public void setSuspect(String suspect) {
+        this.suspect = suspect;
     }
 
     public Crime() {
