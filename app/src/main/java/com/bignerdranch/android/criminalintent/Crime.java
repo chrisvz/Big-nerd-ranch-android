@@ -10,12 +10,20 @@ public class Crime {
     private Date mDate;
     private boolean mSolved;
     private String suspect;
+    private String phone;
 
     public Crime(UUID id) {
         mId = id;
         mDate = new Date();
     }
 
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
 
     public String getSuspect() {
         return suspect;
