@@ -4,8 +4,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
+
 import static database.CrimeDbSchema.CrimeTable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -55,8 +58,7 @@ public class CrimeLab {
         mDatabase.update(CrimeTable.NAME, values, CrimeTable.Cols.UUID + "= ?", new String[]{uuidString});
     }
 
-
-        private CrimeCursorWrapper queryCrimes(String whereClause,String[] whereArgs) {
+    private CrimeCursorWrapper queryCrimes(String whereClause,String[] whereArgs) {
         Cursor cursor = mDatabase.query(
                 CrimeTable.NAME,
                 null,
@@ -71,7 +73,7 @@ public class CrimeLab {
 
     public List<Crime> getCrimes() {
        List<Crime> crimes = new ArrayList<>();
-        CrimeCursorWrapper cursor = queryCrimes(null,null);
+        CrimeCursorWrapper cursor = queryCrimes(null, null);
         try {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -98,5 +100,22 @@ public class CrimeLab {
         finally {
             cursor.close();
         }
+    }
+
+    /**
+     * This code does not create any files on the filesystem.
+     * It only returns File objects that point to the right locations.
+     * It does perform one check:it verifies that there is external storage to save them to
+     * If there is no external storage, it will return null.
+     * @param crime
+     * @return
+     */
+    public File getPhotoFile(Crime crime){
+        File externalFilesDir = mContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        if(externalFilesDir == null) {
+            return null;
+        }
+        return new File(externalFilesDir,crime.getPhotoFilename());
     }
 }
