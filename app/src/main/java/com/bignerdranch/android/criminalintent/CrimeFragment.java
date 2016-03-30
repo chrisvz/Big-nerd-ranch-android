@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,13 @@ import android.widget.EditText;
 import android.text.format.DateFormat;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+
 
 import java.io.File;
 import java.util.Date;
@@ -116,15 +124,15 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        mReportButton = (Button)v.findViewById(R.id.crime_report);
+        mReportButton = (Button) v.findViewById(R.id.crime_report);
         mReportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
-                i.putExtra(Intent.EXTRA_TEXT,getCrimeReport());
-                i.putExtra(Intent.EXTRA_SUBJECT,getString(R.string.crime_report_subject));
-                i = Intent.createChooser(i,getString(R.string.send_report));
+                i.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
+                i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
+                i = Intent.createChooser(i, getString(R.string.send_report));
                 startActivity(i);
             }
         });
@@ -132,15 +140,15 @@ public class CrimeFragment extends Fragment {
 
         final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
 
-        mSuspectButton = (Button)v.findViewById(R.id.crime_suspect);
+        mSuspectButton = (Button) v.findViewById(R.id.crime_suspect);
         mSuspectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(pickContact,REQUEST_CONTACT);
+                startActivityForResult(pickContact, REQUEST_CONTACT);
             }
         });
 
-        if(mCrime.getSuspect() != null){
+        if (mCrime.getSuspect() != null) {
             mSuspectButton.setText(mCrime.getSuspect());
         }
 
@@ -150,62 +158,95 @@ public class CrimeFragment extends Fragment {
 
         }
 
-        mPhotoButton = (ImageButton)v.findViewById(R.id.crime_camera);
+        mPhotoButton = (ImageButton) v.findViewById(R.id.crime_camera);
         final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        boolean canTakePhoto = mPhotoFile!=null && captureImage.resolveActivity(packageManager)!=null;
+        boolean canTakePhoto = mPhotoFile != null && captureImage.resolveActivity(packageManager) != null;
         mPhotoButton.setEnabled(canTakePhoto);
 
-        if(canTakePhoto){
+        if (canTakePhoto) {
             Uri uri = Uri.fromFile(mPhotoFile);
-            captureImage.putExtra(MediaStore.EXTRA_OUTPUT,uri);
+            captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         }
 
-        mPhotoButton.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                startActivityForResult(captureImage,REQUEST_PHOTO);
+        mPhotoButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivityForResult(captureImage, REQUEST_PHOTO);
             }
         });
 
 
-        mPhotoView = (ImageView)v.findViewById(R.id.crime_photo);
-        updatePhotoView();
+        mPhotoView = (ImageView) v.findViewById(R.id.crime_photo);
 
+        mPhotoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+               Intent intent = DetailDisplayActivity.getIntent(getActivity(),mCrime.getId());
+                startActivity(intent);
+
+            }
+        });
+
+        updatePhotoView();
         return v;
     }
 
     private String getCrimeReport() {
         String solvedString = null;
 
-        if(mCrime.isSolved()) {
+        if (mCrime.isSolved()) {
             solvedString = getString(R.string.crime_report_solved);
-        }else {
+        } else {
             solvedString = getString(R.string.crime_report_unsolved);
         }
 
         String dateFormat = "EEE, MMM dd";
-        String dateString = DateFormat.format(dateFormat , mCrime.getDate()).toString();
+        String dateString = DateFormat.format(dateFormat, mCrime.getDate()).toString();
 
         String suspect = mCrime.getSuspect();
-        if(suspect == null) {
+        if (suspect == null) {
             suspect = getString(R.string.crime_report_no_suspect);
-        }else {
+        } else {
             suspect = getString(R.string.crime_report_suspect, suspect);
         }
 
-        String report = getString(R.string.crime_report,mCrime.getTitle(),dateString,solvedString,suspect);
+        String report = getString(R.string.crime_report, mCrime.getTitle(), dateString, solvedString, suspect);
         return report;
 
     }
 
     private void updatePhotoView() {
+
         if(mPhotoFile == null || !mPhotoFile.exists()) {
             mPhotoView.setImageDrawable(null);
-        }else {
-            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(),getActivity());
-            mPhotoView.setImageBitmap(bitmap);
-        }
-    }
+                   }else {
+            Glide
+                    .with(getActivity())
+                    .load(mPhotoFile.getPath())
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            e.printStackTrace();
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+
+                            if(target.getRequest().isComplete()){
+                                Log.d("DEBUG","is  complete");
+                            }
+                            else {
+                                Log.d("DEBUG","is not complete");
+                            }
+                            return false;
+                        }
+                    })
+
+                    .into(mPhotoView);
+                   }
+            }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
