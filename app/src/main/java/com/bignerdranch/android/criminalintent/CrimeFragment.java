@@ -28,8 +28,10 @@ import android.widget.ImageView;
 
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.SizeReadyCallback;
 import com.bumptech.glide.request.target.Target;
 
 
@@ -224,6 +226,11 @@ public class CrimeFragment extends Fragment {
             Glide
                     .with(getActivity())
                     .load(mPhotoFile.getPath())
+                    .thumbnail( 0.1f )
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -234,17 +241,22 @@ public class CrimeFragment extends Fragment {
                         @Override
                         public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
 
-                            if(target.getRequest().isComplete()){
-                                Log.d("DEBUG","is  complete");
-                            }
-                            else {
-                                Log.d("DEBUG","is not complete");
+                            if (target.getRequest().isComplete()) {
+                                Log.d("DEBUG", "is  complete");
+                            } else {
+                                Log.d("DEBUG", "is not complete");
                             }
                             return false;
                         }
                     })
 
-                    .into(mPhotoView);
+                    .into(mPhotoView)
+                    .getSize(new SizeReadyCallback() {
+                        @Override
+                        public void onSizeReady(int width, int height) {
+                            Log.d("DEBUG", width + "" + height);
+                        }
+            });
                    }
             }
 

@@ -19,9 +19,12 @@ import android.widget.ImageView;
 
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.SizeReadyCallback;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.signature.StringSignature;
 
 import java.io.File;
 import java.util.UUID;
@@ -72,6 +75,9 @@ public class DetailDisplayFragment extends Fragment {
         Glide
                 .with(getActivity())
                 .load(path)
+                 .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
+//                .diskCacheStrategy(DiskCacheStrategy.NONE)
+//                .skipMemoryCache(true)
 //                .listener(new RequestListener<File, GlideDrawable>() {
 //                    @Override
 //                    public boolean onException(Exception e, File model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -88,6 +94,12 @@ public class DetailDisplayFragment extends Fragment {
 //                })
 
                 .into(imageView)
+        .getSize(new SizeReadyCallback() {
+            @Override
+            public void onSizeReady(int width, int height) {
+                Log.d("DEBUG",width +""+height);
+            }
+        });
 
         ;
 

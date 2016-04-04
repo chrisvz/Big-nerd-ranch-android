@@ -16,7 +16,8 @@
             android:id="@+id/crime_photo"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:scaleType="fitXY"
+
+
      />
 
             <!--android:background="@android:color/darker_gray"-->
