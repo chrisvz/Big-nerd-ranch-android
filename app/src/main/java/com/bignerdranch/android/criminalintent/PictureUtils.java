@@ -24,8 +24,6 @@ public class PictureUtils {
     }
 
 
-
-
     public static Bitmap getScaledBitmap(String path,int destWidth,int destHeight){
 
         BitmapFactory.Options options = new BitmapFactory.Options();
