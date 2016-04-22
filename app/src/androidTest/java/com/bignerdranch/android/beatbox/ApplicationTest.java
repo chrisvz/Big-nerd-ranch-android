@@ -1,4 +1,4 @@
-package com.bignerdranch.android.criminalintent;
+package com.bignerdranch.android.beatbox;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
